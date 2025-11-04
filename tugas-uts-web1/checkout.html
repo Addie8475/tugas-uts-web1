@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Checkout / Pemesanan - Toko Buku</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card header">
+      <h2>Form Pemesanan</h2>
+      <div class="nav">
+        <a href="stok.html">Katalog</a>
+        <a href="checkout.html" class="active">Pemesanan</a>
+        <a href="tracking.html">Tracking</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="history.html">History</a>
+        <a href="index.html">Keluar</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Pilih Buku</h3>
+      <select id="selectBuku" class="input">
+        <option value="">-- Pilih Buku --</option>
+      </select>
+      <div style="margin-top:10px">
+        <button id="btnAddCart" class="btn btn-primary">Tambahkan ke Keranjang</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Keranjang</h3>
+      <table class="table" id="tblCart">
+        <thead><tr><th>Nama</th><th>Jumlah</th><th>Harga</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Informasi Pemesan & Pembayaran</h3>
+      <div class="grid grid-2">
+        <input id="cusNama" class="input" placeholder="Nama Pemesan">
+        <input id="cusEmail" class="input" placeholder="Email">
+        <input id="cusAlamat" class="input" placeholder="Alamat Pengiriman">
+        <input id="cusPhone" class="input" placeholder="No. Telepon">
+      </div>
+      <div style="margin-top:10px" class="grid grid-2">
+        <select id="metodeBayar" class="input">
+          <option value="Transfer">Transfer Bank</option>
+          <option value="COD">COD</option>
+          <option value="E-Wallet">E-Wallet</option>
+        </select>
+        <input id="note" class="input" placeholder="Catatan (opsional)">
+      </div>
+      <div style="margin-top:12px;text-align:right">
+        <button id="btnSubmit" class="btn btn-primary">Submit Pemesanan</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    let cart = JSON.parse(sessionStorage.getItem('cart')||'[]');
+
+    const selectBuku = document.getElementById('selectBuku');
+    dataKatalogBuku.forEach((b, idx)=>{
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = `${b.namaBarang} — ${b.harga} (stok: ${b.stok})`;
+      selectBuku.appendChild(opt);
+    });
+
+    function renderCart(){
+      const tbody = document.querySelector('#tblCart tbody');
+      tbody.innerHTML = '';
+      cart.forEach((it, i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${it.nama}</td>
+          <td><input type="number" value="${it.qty}" min="1" data-i="${i}" class="input" style="width:80px"></td>
+          <td>${it.harga}</td>
+          <td><button data-i="${i}" class="btn btn-primary">Hapus</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll('#tblCart input[data-i]').forEach(inp=>{
+        inp.onchange = (e)=>{
+          const i = +e.target.dataset.i;
+          cart[i].qty = Math.max(1, parseInt(e.target.value) || 1);
+          sessionStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        }
+      });
+      document.querySelectorAll('#tblCart button[data-i]').forEach(b=>{
+        b.onclick = (e)=>{
+          const i = +e.target.dataset.i;
+          cart.splice(i,1);
+          sessionStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        }
+      });
+    }
+    renderCart();
+
+    document.getElementById('btnAddCart').onclick = ()=>{
+      const idx = selectBuku.value;
+      if(idx===''){ alert('Pilih buku dulu'); return; }
+      const buku = dataKatalogBuku[+idx];
+      const existing = cart.find(c=>c.kode===buku.kodeBarang);
+      if(existing){
+        existing.qty++;
+      }else{
+        cart.push({kode:buku.kodeBarang,nama:buku.namaBarang,harga:buku.harga,qty:1});
+      }
+      sessionStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+      alert('Ditambahkan ke keranjang.');
+    }
+
+    document.getElementById('btnSubmit').onclick = ()=>{
+  const nama = document.getElementById('cusNama').value.trim();
+  const email = document.getElementById('cusEmail').value.trim();
+  const alamat = document.getElementById('cusAlamat').value.trim();
+  if(!nama||!email||!alamat||cart.length===0){
+    alert('Lengkapi data & pastikan keranjang tidak kosong');
+    return;
+  }
+
+  const nomor = 'DO' + Math.floor(Math.random()*900000+100000);
+  const tanggal = new Date().toISOString().slice(0,10);
+
+  const totalInt = cart.reduce((sum, it)=>{
+    const item = dataKatalogBuku.find(b => b.kodeBarang === it.kode);
+    if(!item) return sum;
+    const hargaNum = parseInt(item.harga.replace(/[^0-9]/g,'')) || 0;
+    return sum + (hargaNum * it.qty);
+  }, 0);
+  const totalStr = 'Rp ' + totalInt.toLocaleString('id-ID');
+
+  const laporan = JSON.parse(sessionStorage.getItem('laporan')||'[]');
+  laporan.push({
+    nomorDO: nomor,
+    nama: nama,
+    tanggal: tanggal,
+    items: cart,
+    total: totalStr
+  });
+  sessionStorage.setItem('laporan', JSON.stringify(laporan));
+
+  dataTracking[nomor] = {
+    nomorDO: nomor,
+    nama: nama,
+    status: 'Diproses',
+    ekspedisi: "JNE",
+    tanggalKirim: tanggal,
+    paket: "Reguler",
+    total: totalStr,
+    perjalanan: [
+      {waktu: tanggal + " 08:00", keterangan: "Pesanan dibuat"},
+      {waktu: tanggal + " 12:00", keterangan: "Penjual sedang memproses barang"},
+    ]
+  };
+
+  alert('Pemesanan berhasil!\nNomor DO: ' + nomor);
+
+  cart = [];
+  sessionStorage.removeItem('cart');
+  renderCart();
+};
+
+  </script>
+</body>
+</html>

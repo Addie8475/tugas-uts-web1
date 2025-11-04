@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Login - Toko Buku</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width:420px;margin:60px auto">
+      <h2 class="center">Masuk ke Toko Buku</h2>
+      <div class="form-row">
+        <label>Email</label>
+        <input id="email" class="input" type="email" placeholder="email@example.com">
+      </div>
+      <div class="form-row">
+        <label>Password</label>
+        <input id="password" class="input" type="password" placeholder="password">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+        <button id="btnLogin" class="btn btn-primary">Login</button>
+        <div>
+          <button id="btnForgot" class="btn btn-primary">Lupa Password</button>
+          <button id="btnRegister" class="btn btn-primary">Daftar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="card">
+      <h3 id="modalTitle">Modal</h3>
+      <div id="modalBody"></div>
+      <div style="text-align:right;margin-top:12px">
+        <button id="modalClose" class="btn">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    const btnLogin = document.getElementById('btnLogin');
+    const btnForgot = document.getElementById('btnForgot');
+    const btnRegister = document.getElementById('btnRegister');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalClose = document.getElementById('modalClose');
+
+    function showModal(title, html){
+      modalTitle.textContent = title;
+      modalBody.innerHTML = html;
+      modal.classList.remove('hidden');
+    }
+    modalClose.onclick = ()=> modal.classList.add('hidden');
+
+    btnForgot.onclick = ()=>{
+      showModal('Lupa Password', `
+        <p>Masukkan email untuk reset:</p>
+        <input id="forgotEmail" class="input" type="email" placeholder="email">
+        <div style="margin-top:8px;text-align:right"><button id="sendReset" class="btn btn-primary">Kirim</button></div>
+      `);
+      setTimeout(()=> {
+        document.getElementById('sendReset').onclick = ()=>{
+          const e = document.getElementById('forgotEmail').value.trim();
+          const found = dataPengguna.find(u=>u.email===e);
+          if(found) alert('Link reset telah dikirim ke '+e);
+          else alert('Email tidak ditemukan.');
+          modal.classList.add('hidden');
+        }
+      },50);
+    }
+
+    btnRegister.onclick = ()=>{
+      showModal('Daftar Akun', `
+        <p>Form pendaftaran</p>
+        <div class="form-row"><label>Nama</label><input id="regNama" class="input"></div>
+        <div class="form-row"><label>Email</label><input id="regEmail" class="input" type="email"></div>
+        <div class="form-row"><label>Password</label><input id="regPass" class="input" type="password"></div>
+        <div style="text-align:right"><button id="regSubmit" class="btn btn-primary">Daftar</button></div>
+      `);
+      setTimeout(()=> {
+        document.getElementById('regSubmit').onclick = ()=>{
+          const n=document.getElementById('regNama').value.trim();
+          const e=document.getElementById('regEmail').value.trim();
+          const p=document.getElementById('regPass').value;
+          if(!n||!e||!p){ alert('Lengkapi field'); return; }
+          alert('Registrasi berhasil. Silakan login.');
+          modal.classList.add('hidden');
+        }
+      },50);
+    }
+
+    btnLogin.onclick = ()=>{
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const user = dataPengguna.find(u => u.email === email && u.password===password);
+      if(!user){
+        alert('email/password yang anda masukkan salah');
+        return;
+      }
+      sessionStorage.setItem('user', JSON.stringify(user));
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>

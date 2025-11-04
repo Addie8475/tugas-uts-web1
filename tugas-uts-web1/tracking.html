@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Tracking Pengiriman - Toko Buku</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card header">
+      <h2>Tracking Pengiriman</h2>
+      <div class="nav">
+        <a href="stok.html">Katalog</a>
+        <a href="checkout.html">Pemesanan</a>
+        <a href="tracking.html" class="active">Tracking</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="history.html">History</a>
+        <a href="index.html">Keluar</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-inline">
+        <input id="noDO" class="input" placeholder="Masukkan Nomor Delivery Order">
+        <button id="btnCari" class="btn btn-primary">Cari</button>
+      </div>
+    </div>
+
+    <div id="hasil" class="card hidden">
+      <h3>Hasil Pencarian</h3>
+      <p><strong>Nomor DO:</strong> <span id="resNo"></span></p>
+      <p><strong>Nama Pemesan:</strong> <span id="resNama"></span></p>
+      <p><strong>Status:</strong> <span id="resStatus"></span></p>
+      <p><strong>Ekspedisi:</strong> <span id="resEkspedisi"></span></p>
+      <p><strong>Tanggal Kirim:</strong> <span id="resTanggal"></span></p>
+      <p><strong>Paket:</strong> <span id="resPaket"></span></p>
+      <p><strong>Total:</strong> <span id="resTotal"></span></p>
+
+      <h4>Riwayat Perjalanan</h4>
+      <div id="perjalananList"></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    const btnCari = document.getElementById('btnCari');
+    const noDO = document.getElementById('noDO');
+    const hasil = document.getElementById('hasil');
+
+    btnCari.onclick = ()=>{
+      const key = noDO.value.trim();
+      if(!key){ alert('Masukkan nomor DO'); return; }
+      const data = dataTracking[key];
+      if(!data){
+        alert('Nomor DO tidak ditemukan. Contoh nomor: 20230012 atau 20230013.');
+        return;
+      }
+      // tampilkan
+      document.getElementById('resNo').textContent = data.nomorDO;
+      document.getElementById('resNama').textContent = data.nama;
+      document.getElementById('resStatus').textContent = data.status;
+      document.getElementById('resEkspedisi').textContent = data.ekspedisi;
+      document.getElementById('resTanggal').textContent = data.tanggalKirim;
+      document.getElementById('resPaket').textContent = data.paket;
+      document.getElementById('resTotal').textContent = data.total;
+
+      const pl = document.getElementById('perjalananList');
+      pl.innerHTML = '';
+      const totalEvents = data.perjalanan.length;
+      data.perjalanan.slice().reverse().forEach((p, i)=>{
+        const d = document.createElement('div');
+        d.style.marginBottom='8px';
+        d.innerHTML = `<strong>${p.waktu}</strong> — <span class="small">${p.keterangan}</span>`;
+        pl.appendChild(d);
+      });
+
+      hasil.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

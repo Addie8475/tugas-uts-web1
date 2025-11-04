@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dashboard - Toko Buku</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card header">
+      <div>
+        <div class="greeting" id="greeting">Halo</div>
+        <div class="small-muted" id="userInfo"></div>
+      </div>
+      <div class="nav">
+        <a href="stok.html">Katalog</a>
+        <a href="checkout.html">Pemesanan</a>
+        <a href="tracking.html">Tracking</a>
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="history.html">History</a>
+        <a href="index.html">Keluar</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Menu Utama</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px">
+        <a class="card" style="text-align:center;padding:18px;text-decoration:none;color:inherit" href="stok.html">
+          <div><strong>Informasi Stok / Katalog</strong></div>
+          <div class="small">Lihat & tambah stok</div>
+        </a>
+        <a class="card" style="text-align:center;padding:18px;text-decoration:none;color:inherit" href="tracking.html">
+          <div><strong>Tracking Pengiriman</strong></div>
+          <div class="small">Lacak DO</div>
+        </a>
+        <a class="card" style="text-align:center;padding:18px;text-decoration:none;color:inherit" href="checkout.html">
+          <div><strong>Pemesanan</strong></div>
+          <div class="small">Buat pesanan baru</div>
+        </a>
+        <a class="card" style="text-align:center;padding:18px;text-decoration:none;color:inherit" href="history.html">
+          <div><strong>History Transaksi</strong></div>
+          <div class="small">Riwayat</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Info Singkat</h3>
+      <p>Jumlah katalog saat ini: <span id="countKatalog">0</span></p>
+      <p>Waktu lokal: <span id="localTime"></span></p>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    const user = JSON.parse(sessionStorage.getItem('user')||'null');
+    if(!user){ alert('Silakan login dulu.'); window.location.href='index.html'; }
+    document.getElementById('userInfo').textContent = user.nama + ' • ' + user.role;
+
+    function getGreeting(){
+      const h = new Date().getHours();
+      if(h>=4 && h<11) return 'Selamat Pagi';
+      if(h>=11 && h<15) return 'Selamat Siang';
+      if(h>=15 && h<18) return 'Selamat Sore';
+      return 'Selamat Malam';
+    }
+    document.getElementById('greeting').textContent = getGreeting() + ', ' + user.nama + '!';
+
+    document.getElementById('countKatalog').textContent = dataKatalogBuku.length;
+    document.getElementById('localTime').textContent = new Date().toLocaleString();
+
+    document.getElementById('logout').onclick = (e)=>{
+      e.preventDefault();
+      sessionStorage.removeItem('user');
+      window.location.href='index.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Stok / Katalog - Toko Buku</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card header">
+      <div>
+        <h2>Daftar Katalog</h2>
+        <div class="nav">
+        <a href="stok.html" class="active">Katalog</a>
+        <a href="checkout.html">Pemesanan</a>
+        <a href="tracking.html">Tracking</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="history.html">History</a>
+        <a href="index.html">Keluar</a>
+      </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="table" id="tblKatalog">
+        <thead>
+          <tr><th>Cover</th><th>Kode</th><th>Nama</th><th>Jenis</th><th>Edisi</th><th>Stok</th><th>Harga</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h3 style="margin-top:16px">Tambah Stok Baru</h3>
+      <div class="grid grid-2">
+        <input id="inpKode" class="input" placeholder="kode barang">
+        <input id="inpNama" class="input" placeholder="nama barang">
+        <input id="inpJenis" class="input" placeholder="jenis">
+        <input id="inpEdisi" class="input" placeholder="edisi">
+        <input id="inpStok" class="input" placeholder="stok" type="number">
+        <input id="inpHarga" class="input" placeholder="harga (contoh: Rp 100.000)">
+        <div>
+          <h4 style="margin-top:16px" for="inpCover" class="text">Gambar Cover (opsional)</h4>
+          <input id="inpCover" class="input" type="file" accept="image/jpeg, image/png">
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <button id="btnTambah" class="btn btn-primary">Tambah Baris</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
